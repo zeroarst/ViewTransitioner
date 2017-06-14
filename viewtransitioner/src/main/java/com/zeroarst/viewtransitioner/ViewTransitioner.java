@@ -3,7 +3,6 @@ package com.zeroarst.viewtransitioner;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -48,20 +47,21 @@ public abstract class ViewTransitioner<T extends View> extends FrameLayout {
     }
 
     private class AnimationHolder {
-        AnimationHolder(ObjectAnimator inAnim, ObjectAnimator outAnim) {
+        AnimationHolder(Animator inAnim, Animator outAnim) {
             this.inAnim = inAnim;
             this.outAnim = outAnim;
         }
 
-        ObjectAnimator inAnim;
-        ObjectAnimator outAnim;
+        Animator inAnim;
+        Animator outAnim;
     }
 
-    interface OnViewAcquiringListener<T> {
+    public interface OnViewAcquiringListener<T> {
         void onAcquired(T view);
     }
 
-    public void transition(final ObjectAnimator inAnim, ObjectAnimator outAnim, OnViewAcquiringListener<T> listener) {
+
+    public void transition(final Animator inAnim, Animator outAnim, OnViewAcquiringListener<T> listener) {
 
         T vw = getPool().acquire();
 

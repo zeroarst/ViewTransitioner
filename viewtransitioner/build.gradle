@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
 
+group = 'com.github.zeroarst'
 
 android {
     compileSdkVersion 25
@@ -23,7 +25,22 @@ android {
     }
 }
 
+
+buildscript {
+
+    repositories {
+        maven { url 'https://maven.google.com' }
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        classpath 'com.adaptc.gradle:nexus-workflow:0.6'
+    }
+}
+
 dependencies {
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
@@ -32,3 +49,4 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:25.4.0'
     testImplementation 'junit:junit:4.12'
 }
+

@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ViewTransitioner.iml" filepath="$PROJECT_DIR$/ViewTransitioner.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/viewtransitioner/viewtransitioner.iml" filepath="$PROJECT_DIR$/viewtransitioner/viewtransitioner.iml" />
+      <module fileurl="file://$PROJECT_DIR$/viewtransitionerexample/viewtransitionerexample.iml" filepath="$PROJECT_DIR$/viewtransitionerexample/viewtransitionerexample.iml" />
     </modules>
   </component>
 </project>
