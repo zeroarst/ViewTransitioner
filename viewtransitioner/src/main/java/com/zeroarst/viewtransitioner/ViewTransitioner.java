@@ -91,7 +91,7 @@ public abstract class ViewTransitioner<T extends View> extends FrameLayout {
 
         mShowingView = vw;
 
-        addView(vw);
+        addView(vw, 0);
 
         // Callback for caller to process things on the view.
         listener.onAcquired(vw);

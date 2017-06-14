@@ -35,7 +35,6 @@ buildscript {
 
     dependencies {
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
-        classpath 'com.adaptc.gradle:nexus-workflow:0.6'
     }
 }
 

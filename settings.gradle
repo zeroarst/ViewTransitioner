@@ -1,1 +1,1 @@
-include ':viewtransitioner', ':app', ':viewtransitionerexample'
+include ':viewtransitioner', ':viewtransitionerexample'
