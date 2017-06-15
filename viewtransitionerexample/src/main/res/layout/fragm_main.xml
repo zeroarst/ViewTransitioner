@@ -8,8 +8,8 @@
     android:clipChildren="false"
     tools:context=".MainActivity">
 
-    <com.zeroarst.viewtransitioner.ImageViewTransitioner
-        android:id="@+id/is"
+    <FrameLayout
+        android:id="@+id/lo_container"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_marginTop="16dp"

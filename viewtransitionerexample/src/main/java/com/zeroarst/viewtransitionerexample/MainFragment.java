@@ -2,9 +2,11 @@ package com.zeroarst.viewtransitionerexample;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +16,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.request.target.ViewTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.zeroarst.viewtransitioner.ImageViewTransitioner;
 import com.zeroarst.viewtransitioner.ViewTransitioner;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ import java.util.List;
 public class MainFragment extends android.support.v4.app.Fragment implements View.OnClickListener {
 
     private static final String ARG_EX_ID = "ARG_EX_ID";
-    private ImageViewTransitioner mIvTransitionLo;
+    private ViewTransitioner<ImageView> mVwTransitioner;
 
     private Iterator<Integer> mIter;
 
@@ -50,6 +51,7 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
         ICON_RESOURCES.add(R.drawable.w9);
     }
 
+    ViewGroup mContainerLo;
 
     public static MainFragment create(int exId) {
         MainFragment f = new MainFragment();
@@ -71,19 +73,33 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        // Note that clipChildren has to be set to false otherwise the view won't be drawn outside its parent's bounds.
         final View vw = inflater.inflate(R.layout.fragm_main, container, false);
-        mIvTransitionLo = (ImageViewTransitioner) vw.findViewById(R.id.is);
-        mIvTransitionLo.setPoolSize(10);
-        mIvTransitionLo.setOnClickListener(this);
+        mContainerLo = (ViewGroup) vw.findViewById(R.id.lo_container);
+        mContainerLo.setOnClickListener(this);
+        mVwTransitioner = new ViewTransitioner<>(mContainerLo);
         return vw;
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.is:
+            case R.id.lo_container:
                 showNextImage();
                 break;
+        }
+    }
+
+    abstract class ImageViewTransitionListener implements ViewTransitioner.OnTransitionListener<ImageView> {
+
+        @Override
+        public ImageView onCreateView() {
+            return new ImageView(getContext());
+        }
+
+        @Override
+        public void onAnimationEnded(ImageView view) {
+            // Do nothing.
         }
     }
 
@@ -95,7 +111,7 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
 
         switch (mExampleId) {
             case EX_1:
-                rb.into(new ViewTarget<ViewTransitioner, Drawable>(mIvTransitionLo) {
+                rb.into(new ViewTarget<View, Drawable>(mContainerLo) {
                     @Override
                     public synchronized void onResourceReady(final Drawable resource, Transition<? super Drawable> transition) {
 
@@ -111,9 +127,9 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
                         outAlphaAnim.setFloatValues(0f);
                         outAlphaAnim.setDuration(1000);
 
-                        mIvTransitionLo.transition(inAlphaAnim, outAlphaAnim, new ViewTransitioner.OnViewAcquiringListener<ImageView>() {
+                        mVwTransitioner.transition(inAlphaAnim, outAlphaAnim, new ImageViewTransitionListener() {
                             @Override
-                            public void onAcquired(ImageView view) {
+                            public void onAcquired(ImageView view, boolean fromPool) {
                                 // Init
                                 view.setAlpha(0f);
                                 view.setImageDrawable(resource);
@@ -124,7 +140,7 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
                 });
                 break;
             case EX_2:
-                rb.into(new ViewTarget<ViewTransitioner, Drawable>(mIvTransitionLo) {
+                rb.into(new ViewTarget<View, Drawable>(mContainerLo) {
                     @Override
                     public synchronized void onResourceReady(final Drawable resource, Transition<? super Drawable> transition) {
 
@@ -148,9 +164,9 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
                         outRotateAnim.setFloatValues(-90);
                         outRotateAnim.setDuration(500);
 
-                        mIvTransitionLo.transition(asIn, outRotateAnim, new ViewTransitioner.OnViewAcquiringListener<ImageView>() {
+                        mVwTransitioner.transition(asIn, outRotateAnim, new ImageViewTransitionListener() {
                             @Override
-                            public void onAcquired(ImageView view) {
+                            public void onAcquired(ImageView view, boolean fromPool) {
                                 // Init
                                 view.setAlpha(0f);
                                 view.setRotationY(90);
@@ -162,7 +178,7 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
                 });
                 break;
             case EX_3:
-                rb.into(new ViewTarget<ViewTransitioner, Drawable>(mIvTransitionLo) {
+                rb.into(new ViewTarget<View, Drawable>(mContainerLo) {
                     @Override
                     public synchronized void onResourceReady(final Drawable resource, Transition<? super Drawable> transition) {
 
@@ -193,7 +209,7 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
 
                         final ObjectAnimator outTransXAnim = new ObjectAnimator();
                         outTransXAnim.setProperty(View.TRANSLATION_X);
-                        outTransXAnim.setFloatValues(-100);
+                        outTransXAnim.setFloatValues(-convertDipToPx(getContext(), 100));
                         outTransXAnim.setDuration(2500);
 
                         final ObjectAnimator outPivotXAnim = new ObjectAnimator();
@@ -202,11 +218,11 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
                         outPivotXAnim.setDuration(2500);
 
                         final AnimatorSet asOut = new AnimatorSet();
-                        asOut.playTogether(outAlphaAnim, outRotateXAnim,  outRotateYAnim, outTransXAnim, outPivotXAnim);
+                        asOut.playTogether(outAlphaAnim, outRotateXAnim, outRotateYAnim, outTransXAnim, outPivotXAnim);
 
-                        mIvTransitionLo.transition(asIn, asOut, new ViewTransitioner.OnViewAcquiringListener<ImageView>() {
+                        mVwTransitioner.transition(asIn, asOut, new ImageViewTransitionListener() {
                             @Override
-                            public void onAcquired(ImageView view) {
+                            public void onAcquired(ImageView view, boolean fromPool) {
                                 // Init&Reset
                                 view.setAlpha(0f);
                                 view.setRotationY(0);
@@ -220,8 +236,88 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
                     }
                 });
                 break;
+            case EX_4:
+                rb.into(new ViewTarget<View, Drawable>(mContainerLo) {
+                    @Override
+                    public synchronized void onResourceReady(final Drawable resource, Transition<? super Drawable> transition) {
+
+                        // In anim
+                        final ObjectAnimator inAlphaAnim = new ObjectAnimator();
+                        inAlphaAnim.setProperty(View.ALPHA);
+                        inAlphaAnim.setFloatValues(1f);
+                        inAlphaAnim.setDuration(1000);
+
+                        final ObjectAnimator inScaleXAnim = new ObjectAnimator();
+                        inScaleXAnim.setProperty(View.SCALE_X);
+                        inScaleXAnim.setFloatValues(1f);
+                        inScaleXAnim.setDuration(1000);
+
+                        final ObjectAnimator inScaleYAnim = new ObjectAnimator();
+                        inScaleYAnim.setProperty(View.SCALE_Y);
+                        inScaleYAnim.setFloatValues(1f);
+                        inScaleYAnim.setDuration(1000);
+
+                        final ObjectAnimator inTransYAnim = new ObjectAnimator();
+                        inTransYAnim.setProperty(View.TRANSLATION_Y);
+                        inTransYAnim.setFloatValues(0);
+                        inTransYAnim.setDuration(1000);
+
+                        final ObjectAnimator inRotationXAnim = new ObjectAnimator();
+                        inRotationXAnim.setProperty(View.ROTATION_X);
+                        inRotationXAnim.setFloatValues(0);
+                        inRotationXAnim.setDuration(1000);
+
+                        final AnimatorSet asIn = new AnimatorSet();
+                        // asIn.setStartDelay(2500); // Wait for out anim finish.
+                        asIn.playTogether(inAlphaAnim, inScaleXAnim, inScaleYAnim, inRotationXAnim, inTransYAnim);
+
+                        // Out anim
+                        final ObjectAnimator outAlphaAnim = new ObjectAnimator();
+                        outAlphaAnim.setProperty(View.ALPHA);
+                        outAlphaAnim.setFloatValues(0.5f);
+                        outAlphaAnim.setDuration(1000);
+
+                        final ObjectAnimator outScaleXAnim = new ObjectAnimator();
+                        outScaleXAnim.setProperty(View.SCALE_X);
+                        outScaleXAnim.setFloatValues(1.75f);
+                        outScaleXAnim.setDuration(1000);
+
+                        final ObjectAnimator outScaleYAnim = new ObjectAnimator();
+                        outScaleYAnim.setProperty(View.SCALE_Y);
+                        outScaleYAnim.setFloatValues(1.75f);
+                        outScaleYAnim.setDuration(1000);
+
+                        final ObjectAnimator outRotateXAnim = new ObjectAnimator();
+                        outRotateXAnim.setProperty(View.ROTATION_X);
+                        outRotateXAnim.setFloatValues(-90);
+                        outRotateXAnim.setDuration(1000);
+
+                        final ObjectAnimator outTransYAnim = new ObjectAnimator();
+                        outTransYAnim.setProperty(View.TRANSLATION_Y);
+                        outTransYAnim.setFloatValues(mContainerLo.getHeight() * 0.75f);
+                        outTransYAnim.setDuration(1000);
+
+                        final AnimatorSet asOut = new AnimatorSet();
+                        asOut.playTogether(outAlphaAnim, outScaleXAnim, outScaleYAnim, outRotateXAnim, outTransYAnim);
+
+                        mVwTransitioner.transition(asIn, asOut, new ImageViewTransitionListener() {
+                            @Override
+                            public void onAcquired(ImageView view, boolean fromPool) {
+                                // Init&Reset
+                                view.setAlpha(0f);
+                                view.setRotationX(-90);
+                                view.setTranslationY(-mContainerLo.getHeight() * 0.75f);
+                                view.setScaleX(0.5f);
+                                view.setScaleY(0.5f);
+                                view.setImageDrawable(resource);
+                            }
+                        });
+
+                    }
+                });
+                break;
             case EX_5:
-                rb.into(new ViewTarget<ViewTransitioner, Drawable>(mIvTransitionLo) {
+                rb.into(new ViewTarget<View, Drawable>(mContainerLo) {
                     @Override
                     public synchronized void onResourceReady(final Drawable resource, Transition<? super Drawable> transition) {
 
@@ -252,7 +348,7 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
 
                         final ObjectAnimator outSlideAnim = new ObjectAnimator();
                         outSlideAnim.setProperty(View.TRANSLATION_X);
-                        outSlideAnim.setFloatValues(-mIvTransitionLo.getWidth());
+                        outSlideAnim.setFloatValues(-mContainerLo.getWidth());
                         outSlideAnim.setDuration(1000);
 
                         final ObjectAnimator outAlphaAnim = new ObjectAnimator();
@@ -263,11 +359,11 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
                         final AnimatorSet asOut = new AnimatorSet();
                         asOut.playTogether(outSlideAnim, outAlphaAnim, outRotateAnim);
 
-                        mIvTransitionLo.transition(asIn, asOut, new ViewTransitioner.OnViewAcquiringListener<ImageView>() {
+                        mVwTransitioner.transition(asIn, asOut, new ImageViewTransitionListener() {
                             @Override
-                            public void onAcquired(ImageView view) {
+                            public void onAcquired(ImageView view, boolean fromPool) {
                                 // Init
-                                view.setTranslationX(mIvTransitionLo.getWidth());
+                                view.setTranslationX(mContainerLo.getWidth());
                                 view.setAlpha(0f);
                                 view.setRotationY(-90);
                                 view.setImageDrawable(resource);
@@ -279,6 +375,11 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
                 break;
         }
 
+    }
+
+    public int convertDipToPx(Context context, int dp) {
+        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
+        return (int) px;
     }
 
 }

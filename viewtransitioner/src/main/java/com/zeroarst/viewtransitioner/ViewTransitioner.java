@@ -3,40 +3,32 @@ package com.zeroarst.viewtransitioner;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.util.Pools;
-import android.util.AttributeSet;
 import android.view.View;
-import android.widget.FrameLayout;
+import android.view.ViewGroup;
 
 
-public abstract class ViewTransitioner<T extends View> extends FrameLayout {
+public class ViewTransitioner<T extends View> {
 
-    private final static String TAG = "ViewTransitionLayout";
+    private final static String TAG = "ViewTransitioner";
 
     private final static int DEFAULT_POOL_SIZE = 5;
     private Pools.Pool<T> mPools;
 
-    public ViewTransitioner(@NonNull Context context, int poolSize) {
-        super(context);
-        init(poolSize);
+    private ViewGroup mContainer;
+
+    public ViewTransitioner(ViewGroup container) {
+        this(container, DEFAULT_POOL_SIZE);
     }
 
-    public ViewTransitioner(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    private void init(int poolSize) {
+    public ViewTransitioner(ViewGroup container, int poolSize) {
+        mContainer = container;
         setPoolSize(poolSize);
     }
 
-    public void setPoolSize(int poolSize) {
-        this.mPools = new Pools.SimplePool<>(poolSize == -1 ? DEFAULT_POOL_SIZE : poolSize);
+    private void setPoolSize(int poolSize) {
+        this.mPools = new Pools.SimplePool<>(poolSize);
     }
-
-    public abstract T createView();
 
     private T mShowingView;
 
@@ -56,17 +48,47 @@ public abstract class ViewTransitioner<T extends View> extends FrameLayout {
         Animator outAnim;
     }
 
-    public interface OnViewAcquiringListener<T> {
-        void onAcquired(T view);
+    public interface OnTransitionListener<T> {
+
+        /**
+         * Called when unable to acquire a {@link View} from a pool.
+         *
+         * @return
+         */
+        T onCreateView();
+
+        /**
+         * Called when a {@link View} acquired from either pool or new creation.
+         *
+         * @param view
+         * @param fromPool True if from pool. False if from new creation.
+         */
+        void onAcquired(T view, boolean fromPool);
+
+        /**
+         * Called when out {@link Animator} has ended. At this point this {@link View} has been release to pool and removed from the view tree.
+         *
+         * @param view
+         */
+        void onAnimationEnded(T view);
+
     }
 
+    public void transition(final Animator inAnim, Animator outAnim, final OnTransitionListener<T> listener) {
 
-    public void transition(final Animator inAnim, Animator outAnim, OnViewAcquiringListener<T> listener) {
-
+        boolean fromPool = true;
         T vw = getPool().acquire();
 
+        if (vw == null) {
+            fromPool = false;
+            vw = listener.onCreateView();
+        }
+
         if (vw == null)
-            vw = createView();
+            return;
+
+        // Callback for caller to process things on the view.
+        listener.onAcquired(vw, fromPool);
 
         vw.setTag(new AnimationHolder(inAnim, outAnim));
 
@@ -82,8 +104,9 @@ public abstract class ViewTransitioner<T extends View> extends FrameLayout {
             ah.outAnim.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    removeView(finalVw);
+                    mContainer.removeView(finalVw);
                     getPool().release(finalVw);
+                    listener.onAnimationEnded(finalVw);
                 }
             });
             ah.outAnim.start();
@@ -91,10 +114,7 @@ public abstract class ViewTransitioner<T extends View> extends FrameLayout {
 
         mShowingView = vw;
 
-        addView(vw, 0);
-
-        // Callback for caller to process things on the view.
-        listener.onAcquired(vw);
+        mContainer.addView(vw, 0);
 
         inAnim.setTarget(vw);
         inAnim.start();
