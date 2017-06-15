@@ -6,7 +6,7 @@
 
 Allow you to transition between views smoonthly with in &amp; out animations without interrupting each other. This uses Pool mechanism.
 
-It is recommend to use along with ![Glide](https://github.com/bumptech/glide) which save you trouble of OOM. 
+It is recommended to use along with ![Glide](https://github.com/bumptech/glide) which save you trouble of OOM. 
 
 Check the ViewTransitionExample to see how to use them together. 
 
