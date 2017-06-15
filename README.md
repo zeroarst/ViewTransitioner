@@ -6,7 +6,7 @@
 
 Allow you to transition between views smoonthly with in &amp; out animations without interrupting each other. This uses Pool mechanism.
 
-It is recommended to use along with ![Glide](https://github.com/bumptech/glide) which save you trouble of OOM. 
+It is recommended to use along with [Glide][1] which save you trouble of OOM. 
 
 Check the ViewTransitionExample to see how to use them together. 
 
@@ -34,3 +34,7 @@ dependencies {
 ![3](https://github.com/zeroarst/zeroarst.github.io/blob/master/viewtransitioner/e3.gif)
 ![4](https://github.com/zeroarst/zeroarst.github.io/blob/master/viewtransitioner/e4.gif)
 ![5](https://github.com/zeroarst/zeroarst.github.io/blob/master/viewtransitioner/e5.gif)
+
+
+
+[1]: https://github.com/bumptech/glide/releases
