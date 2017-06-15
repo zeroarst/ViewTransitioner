@@ -35,15 +35,19 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
     private static final int EX_4 = 4;
     private static final int EX_5 = 5;
 
-    private static List<Integer> mIconResources;
+    private static List<Integer> ICON_RESOURCES;
 
     static {
-        mIconResources = new ArrayList<>();
-        mIconResources.add(R.drawable.w1);
-        mIconResources.add(R.drawable.w2);
-        mIconResources.add(R.drawable.w3);
-        mIconResources.add(R.drawable.w4);
-        mIconResources.add(R.drawable.w5);
+        ICON_RESOURCES = new ArrayList<>();
+        ICON_RESOURCES.add(R.drawable.w1);
+        ICON_RESOURCES.add(R.drawable.w2);
+        ICON_RESOURCES.add(R.drawable.w3);
+        ICON_RESOURCES.add(R.drawable.w4);
+        ICON_RESOURCES.add(R.drawable.w5);
+        ICON_RESOURCES.add(R.drawable.w6);
+        ICON_RESOURCES.add(R.drawable.w7);
+        ICON_RESOURCES.add(R.drawable.w8);
+        ICON_RESOURCES.add(R.drawable.w9);
     }
 
 
@@ -60,7 +64,7 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            mExampleId = getArguments().getInt(ARG_EX_ID, 1);
+            mExampleId = getArguments().getInt(ARG_EX_ID);
         }
     }
 
@@ -83,9 +87,9 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
         }
     }
 
-    void showNextImage() {
+    private void showNextImage() {
         if (mIter == null || !mIter.hasNext())
-            mIter = mIconResources.iterator();
+            mIter = ICON_RESOURCES.iterator();
 
         RequestBuilder<Drawable> rb = Glide.with(this).load(mIter.next());
 
@@ -175,27 +179,27 @@ public class MainFragment extends android.support.v4.app.Fragment implements Vie
                         final ObjectAnimator outAlphaAnim = new ObjectAnimator();
                         outAlphaAnim.setProperty(View.ALPHA);
                         outAlphaAnim.setFloatValues(0.5f);
-                        outAlphaAnim.setDuration(500);
+                        outAlphaAnim.setDuration(2500);
 
                         final ObjectAnimator outRotateXAnim = new ObjectAnimator();
                         outRotateXAnim.setProperty(View.ROTATION_X);
                         outRotateXAnim.setFloatValues(90);
-                        outRotateXAnim.setDuration(500);
+                        outRotateXAnim.setDuration(2500);
 
                         final ObjectAnimator outRotateYAnim = new ObjectAnimator();
                         outRotateYAnim.setProperty(View.ROTATION_Y);
                         outRotateYAnim.setFloatValues(-45);
-                        outRotateYAnim.setDuration(500);
+                        outRotateYAnim.setDuration(2500);
 
                         final ObjectAnimator outTransXAnim = new ObjectAnimator();
                         outTransXAnim.setProperty(View.TRANSLATION_X);
                         outTransXAnim.setFloatValues(-100);
-                        outTransXAnim.setDuration(500);
+                        outTransXAnim.setDuration(2500);
 
                         final ObjectAnimator outPivotXAnim = new ObjectAnimator();
                         outPivotXAnim.setPropertyName("PivotX");
                         outPivotXAnim.setFloatValues(45);
-                        outPivotXAnim.setDuration(500);
+                        outPivotXAnim.setDuration(2500);
 
                         final AnimatorSet asOut = new AnimatorSet();
                         asOut.playTogether(outAlphaAnim, outRotateXAnim,  outRotateYAnim, outTransXAnim, outPivotXAnim);
