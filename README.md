@@ -6,9 +6,9 @@
 
 Allow you to transition between views smoonthly with in &amp; out animations without interrupting each other. This uses Pool mechanism.
 
-It is recommend to use along with https://github.com/bumptech/glide which save you trouble of OOM. 
+It is recommend to use along with ![Glide](https://github.com/bumptech/glide) which save you trouble of OOM. 
 
-Check the ViewTransitionExample to see use them together. 
+Check the ViewTransitionExample to see how to use them together. 
 
 Tip: In the example it does not use `Bitmap` pool in order to avoid resuing bitmap that is still in animating.
 
