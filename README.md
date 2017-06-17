@@ -8,8 +8,7 @@ Allow you to transition between views smoonthly by applying in &amp; out animati
 
 If you want to transition ImageView I would recommend using [Glide][1] which save you trouble of OOM. 
 Check the ViewTransitionExample to see how to use them together. 
-
-Tip: In the example it does not use `Bitmap` pool in order to avoid resuing bitmap that is still in animating.
+Tip: In the example it does not use `Bitmap` pool in Glide in order to avoid resuing bitmap that is still in animating, which causes a transition glitch.
 
 Use
 --------
