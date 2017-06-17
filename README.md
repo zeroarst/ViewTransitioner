@@ -4,10 +4,9 @@
 [![ ](https://jitpack.io/v/zeroarst/ViewTransitioner.svg)](https://jitpack.io/#zeroarst/ViewTransitioner)
 
 
-Allow you to transition between views smoonthly with in &amp; out animations without interrupting each other. This uses Pool mechanism.
+Allow you to transition between views smoonthly by applying in &amp; out animations on each `View` without interrupting each other. This uses Pool mechanism.
 
-It is recommended to use along with [Glide][1] which save you trouble of OOM. 
-
+If you want to transition ImageView I would recommend using [Glide][1] which save you trouble of OOM. 
 Check the ViewTransitionExample to see how to use them together. 
 
 Tip: In the example it does not use `Bitmap` pool in order to avoid resuing bitmap that is still in animating.
