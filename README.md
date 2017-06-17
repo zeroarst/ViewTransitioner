@@ -28,7 +28,7 @@ dependencies {
 }
 ```
 
-```
+```java
 ViewTransitioner<ImageView> vwTransitioner = new ViewTransitioner<>(mViewContainerLayout);
 // In anim
 final ObjectAnimator inAlphaAnim = new ObjectAnimator();
