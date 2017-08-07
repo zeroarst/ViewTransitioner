@@ -4,6 +4,7 @@ package com.zeroarst.viewtransitioner;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.support.v4.util.Pools;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -26,11 +27,12 @@ public class ViewTransitioner<T extends View> {
         setPoolSize(poolSize);
     }
 
-    private void setPoolSize(int poolSize) {
+    public void setPoolSize(int poolSize) {
         this.mPools = new Pools.SimplePool<>(poolSize);
     }
 
     private T mShowingView;
+    private T mLeavingView;
 
     private Pools.Pool<T> getPool() {
         if (mPools == null)
@@ -70,7 +72,25 @@ public class ViewTransitioner<T extends View> {
          *
          * @param view
          */
-        void onAnimationEnded(T view);
+        void onInAnimationEnded(T view);
+
+    }
+
+    public void cancelAnimation() {
+        Log.d(TAG, "cancelAnimation");
+
+        if (mShowingView != null) {
+            AnimationHolder ah = (AnimationHolder) mShowingView.getTag();
+            ah.inAnim.cancel();
+            ah.outAnim.cancel();
+            // ViewCompat.animate(mShowingView).cancel();
+        }
+        if (mLeavingView != null) {
+            AnimationHolder ah = (AnimationHolder) mLeavingView.getTag();
+            ah.inAnim.cancel();
+            ah.outAnim.cancel();
+            // ViewCompat.animate(mLeavingView).cancel();
+        }
 
     }
 
@@ -90,23 +110,41 @@ public class ViewTransitioner<T extends View> {
         // Callback for caller to process things on the view.
         listener.onAcquired(vw, fromPool);
 
+        // if (mShowingView != null)
+        //     mLeavingView = mShowingView;
+
+        inAnim.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                animation.removeAllListeners();
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                Log.d(TAG, "intAnim: onAnimationEnd");
+                listener.onInAnimationEnded(mShowingView);
+            }
+        });
+
         vw.setTag(new AnimationHolder(inAnim, outAnim));
 
         if (mShowingView != null) {
+            mLeavingView = mShowingView;
             AnimationHolder ah = (AnimationHolder) vw.getTag();
 
-            final T finalVw = mShowingView;
             // Cancel current running animation of showing view.
             ah.inAnim.cancel();
 
             // Execute out animation on showing view.
-            ah.outAnim.setTarget(finalVw);
+            ah.outAnim.setTarget(mLeavingView);
             ah.outAnim.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    mContainer.removeView(finalVw);
-                    getPool().release(finalVw);
-                    listener.onAnimationEnded(finalVw);
+                    Log.d(TAG, "outAnime: onAnimationEnd");
+                    mContainer.removeView(mLeavingView);
+                    getPool().release(mLeavingView);
+                    mLeavingView = null;
+                    // listener.onInAnimationEnded(finalVw);
                 }
             });
             ah.outAnim.start();
